@@ -131,5 +131,5 @@ The assignment required creating a PL/SQL package to streamline hospital patient
 
 ---
 
-*Academic Project - Database Systems Course*  
-*Submitted: 27-11-2024*
+*Academic Project - Database Development with PL/SQL Course*  
+
