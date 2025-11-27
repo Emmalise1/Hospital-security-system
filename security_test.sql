@@ -1,8 +1,16 @@
+-- #############################################################
+-- # TEST SCRIPT: Security Policy Validation for Failed Logins #
+-- # Author: <Gentille_27398>                                       #
+-- # Purpose: Automatically test login attempts and alerting   #
+-- #############################################################
 SET SERVEROUTPUT ON;
 
 DECLARE
+    -- v_alert_count: stores number of alerts found for the test user
     v_alert_count NUMBER;
+    -- v_login_count: stores number of login_audit entries
     v_login_count NUMBER;
+    -- v_username: generates a unique test user each run
     v_username VARCHAR2(100) := 'test_user_' || TO_CHAR(SYSTIMESTAMP, 'SSFF');
     v_test_result VARCHAR2(10);
 BEGIN
@@ -13,6 +21,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('');
     
 
+    -- PHASE 1: Clean previous test data to ensure a fresh environment.
     DBMS_OUTPUT.PUT_LINE('PHASE 1: INITIAL SETUP');
     DBMS_OUTPUT.PUT_LINE('-----------------------');
     DELETE FROM security_alerts WHERE username = v_username;
@@ -22,6 +31,8 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('');
     
 
+    -- PHASE 2: Validate that the trigger does NOT generate alerts
+    --  when failed login attempts are less than 3.
     DBMS_OUTPUT.PUT_LINE('PHASE 2: TEST 1-2 FAILED ATTEMPTS (NO ALERTS)');
     DBMS_OUTPUT.PUT_LINE('---------------------------------------------');
     
@@ -57,7 +68,7 @@ BEGIN
     END IF;
     DBMS_OUTPUT.PUT_LINE('');
     
-    
+    -- PHASE 3: Validate that an alert IS generated at 3 failed attempts.
     DBMS_OUTPUT.PUT_LINE('PHASE 3: TEST 3RD FAILED ATTEMPT (ALERT EXPECTED)');
     DBMS_OUTPUT.PUT_LINE('------------------------------------------------');
     
@@ -76,7 +87,7 @@ BEGIN
     END IF;
     DBMS_OUTPUT.PUT_LINE('');
     
- 
+    -- PHASE 4: Ensure the generated alert contains correct details.
     DBMS_OUTPUT.PUT_LINE('PHASE 4: ALERT DETAILS VERIFICATION');
     DBMS_OUTPUT.PUT_LINE('-----------------------------------');
     
@@ -95,7 +106,7 @@ BEGIN
     END LOOP;
     DBMS_OUTPUT.PUT_LINE('');
     
-
+    -- PHASE 5: Verify that successful login attempts do not trigger alerts.
     DBMS_OUTPUT.PUT_LINE('PHASE 5: TEST SUCCESSFUL LOGIN (NO ADDITIONAL ALERT)');
     DBMS_OUTPUT.PUT_LINE('----------------------------------------------------');
     
@@ -112,7 +123,7 @@ BEGIN
     END IF;
     DBMS_OUTPUT.PUT_LINE('');
     
-
+    -- PHASE 6: Summarize total attempts and alerts.
     DBMS_OUTPUT.PUT_LINE('PHASE 6: TEST SUMMARY');
     DBMS_OUTPUT.PUT_LINE('---------------------');
     SELECT COUNT(*) INTO v_login_count FROM login_audit WHERE username = v_username;
